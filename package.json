@@ -1,0 +1,27 @@
+{
+  "name": "telegram-add-user",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quan191/telegram-add-user.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/quan191/telegram-add-user/issues"
+  },
+  "homepage": "https://github.com/quan191/telegram-add-user#readme",
+  "devDependencies": {
+    "input": "^1.0.1",
+    "telegram": "^2.10.10"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "json-2-csv": "^3.17.1"
+  }
+}
