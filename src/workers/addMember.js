@@ -26,15 +26,13 @@ const test = async () => {
     onError: (err) => console.log(err),
   });
   const group = await client.getDialogs({});
-  let x ;
   for (let i=0; i < group.length; i++){
-    if ( group[i].entity.title === "Peaky Blinder") {
-        x = group[i];
-        console.log(x);
+    if ( group[i].entity.title === "Future") {
+        console.log(group[i]);
     };
 }
   const data = await getData();
-  await addToChannel(x, data, client);
+  await addToChannel("Future", data, client);
   await updateDb(data);
   console.log("You should now be connected");
   console.log(client.session.save());
@@ -45,7 +43,7 @@ const getData = async () => {
     let data = await UsersDatabase.find({
       status: "new user",
       userName: {$ne: null},
-    }).limit(1000);
+    }).limit(200);
     let userData = [];
     for (let i=0; i< data.length; i++){
             userData = [... userData, data[i].userName];
@@ -77,7 +75,7 @@ const addToChannel = async (channelName, user, client) => {
   try {
     const result = await client.invoke(
       new Api.channels.InviteToChannel({
-        entity: channelName,
+        channel: channelName,
         users: user,
       })
     );
