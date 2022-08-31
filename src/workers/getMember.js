@@ -1,12 +1,14 @@
 require('dotenv').config();
 const { Api, TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
-const converter = require('json-2-csv');
-console.log(converter);
-const fs = require('fs');
 const input = require("input");
+const mongoose = require('mongoose');
+const UsersDatabase = require("../databases/users");
+mongoose.connect(process.env.MONGO, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
 
-console.log(process.env.API_ID);
 const apiId = parseInt(process.env.API_ID);
 const apiHash = process.env.API_HASH;
 const stringSession = new StringSession("");
@@ -30,17 +32,20 @@ const test = async () => {
             group = result[i];
         };
     }
-    console.log(group);
     const user = await getParticipants(client, group);
     let userData = [];
     let x ;
     for (let i=0; i < user.length; i++){
-        if (user[i].username !== null){
-            userData = [... userData, user[i].username];
-        }
+        x= {
+            firstName: user[i].firstName,
+            lastName: user[i].lastName,
+            username: user[i].username,
+            phone: user[i].phone,
+        };
+        userData = [... userData, x];
     }
     console.log(userData);
-    await addToChannel("W88 NHÀ CÁI UY TÍN ĐẾN TỪ CHÂU ÂU", userData, client);
+    await pushToDb(userData);
     console.log("You should now be connected");
     console.log(client.session.save());
 
@@ -49,9 +54,7 @@ const getGroup = async (client) =>{
     console.log("load group chat");
     let chat = [];
     let group = [];
-    const result = await client.getDialogs({
-        title: "VRF-Orai-Report",
-    });
+    const result = await client.getDialogs({});
     return result;
 }
 const getParticipants = async (client, group) => {
@@ -60,12 +63,27 @@ const getParticipants = async (client, group) => {
     return result;
 }
 
-const addToChannel = async (channelName, user, client) => {
-    const result = await client.invoke(new Api.channels.InviteToChannel({
-        channel: channelName,
-        users: user,
-    }));
-    console.log(result);
+const pushToDb = async (data) => {
+    try{
+        for (let i = 0; i< data.length; i++){
+            let insert = {
+                firstName: data[i].firstName,
+                lastName: data[i].lastName,
+                userName: data[i].username,
+                phone: data[i].phone,
+            }
+            await UsersDatabase.findOneAndUpdate({userName: insert.userName}, insert, {
+                upsert: true,
+                new: true,
+                setDefaultsOnInsert: true,
+            });
+        }
+    } catch(err){
+        console.log(err);
+    }
 }
+function isVietnamesePhoneNumberValid(number) {
+    return /(((\+|)84)|0)(3|5|7|8|9)+([0-9]{8})\b/.test(number);
+  }
 
 test(); 
